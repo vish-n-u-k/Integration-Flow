@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npx next:*)",
+      "Bash(timeout 10 bash:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}
