@@ -24,3 +24,11 @@ export async function POST(request: NextRequest) {
   console.log(`[webhook] Ignored event: ${event} / ${body.action ?? "no action"}`);
   return NextResponse.json({ message: "Event ignored" });
 }
+
+
+export async function GET(request: NextRequest) {
+  const event = request.headers.get("x-github-event");
+  console.log(`[webhook] Received event: ${event}`);
+
+  return NextResponse.json({ message: "Event ignored" });
+}

@@ -1,21 +1,34 @@
-import { execFile } from "child_process";
+import { spawn } from "child_process";
 
 export function runClaude(issueTitle: string, issueBody: string): void {
-  const prompt = `GitHub Issue: ${issueTitle}\n\n${issueBody}`;
+  const prompt = `You are working in this repository. A GitHub issue was opened:
+
+Title: ${issueTitle}
+Body: ${issueBody}
+
+Read the relevant code and fix this issue by editing files directly.`;
 
   console.log(`[claude] Starting Claude for issue: "${issueTitle}"`);
 
-  const child = execFile("claude", ["-p", prompt], { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`[claude] Process error:`, error.message);
-    }
-    console.log(`[claude] Process exited with code ${error?.code ?? 0}`);
-    if (stdout) {
-      console.log(`[claude] Output:\n${stdout}`);
-    }
-    if (stderr) {
-      console.error(`[claude] Stderr:\n${stderr}`);
-    }
+  const child = spawn("claude", ["-p", "--dangerously-skip-permissions"], {
+    cwd: process.cwd(),
+    stdio: ["pipe", "pipe", "pipe"],
+    shell: true,
+  });
+
+  child.stdin.write(prompt);
+  child.stdin.end();
+
+  child.stdout.on("data", (data: Buffer) => {
+    console.log(`[claude] ${data.toString().trim()}`);
+  });
+
+  child.stderr.on("data", (data: Buffer) => {
+    console.error(`[claude:err] ${data.toString().trim()}`);
+  });
+
+  child.on("close", (code) => {
+    console.log(`[claude] Process exited with code ${code}`);
   });
 
   child.on("error", (err) => {
